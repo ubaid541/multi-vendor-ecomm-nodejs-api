@@ -8,11 +8,11 @@ import routes from "./routes/index.js"
 dotenv.config()
 
 // database connnection
-const url = 'mongodb://localhost/fyp_react';
+//const url = 'mongodb://localhost/fyp_react';
 
 const connect = async ()=>{
     try {
-        await mongoose.connect(url)
+        await mongoose.connect(process.env.MONGO)
         console.log("Database connected.");
     } catch (error) {
         console.log(error.message);
