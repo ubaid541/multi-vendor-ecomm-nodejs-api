@@ -91,27 +91,45 @@ const addonContoller = {
     }
   },
   async updateAddon(req, res, next) {
+    const { addon_name, addon_id } = req.body;
+
+    if (!addon_name || !addon_id) {
+      return res
+        .status(409)
+        .send({ messge: "Addon name and addon id are required.", error: 403 });
+    }
+
     try {
       const exists = await Addon.exists({
-        $and: [
-          { addon_name: req.body.addon_name },
-          { _id: { $ne: req.query.addon_id } },
-        ],
+        $and: [{ addon_name: addon_name }, { _id: { $ne: addon_id } }],
       });
 
       if (exists) {
-        return res.status(409).send("Addon name already exists.");
+        return res
+          .status(409)
+          .send({ message: "Addon name already exists.", error: 409 });
       }
     } catch (error) {
       next(error);
     }
 
     try {
-      const updateAddon = await Addon.updateOne(
-        { _id: req.query.addon_id },
-        { $set: req.body }
-      );
-      res.status(200).json("Addon Updated.");
+      //   const updateAddon = await Addon.updateOne(
+      //     { _id: req.query.addon_id },
+      //     { $set: req.body }
+      //   );
+
+      const updatedAddon = await Addon.findByIdAndUpdate(addon_id, req.body, {
+        new: true,
+      });
+      console.log("updated addon::: ", updatedAddon);
+      if (!updatedAddon) {
+        return res
+          .status(404)
+          .json({ message: "Addon not found.", error: 404 });
+      }
+      res.status(200).json({ message: "Addon Updated.", data: updatedAddon });
+      res.status(200).json({ message: "Addon Updated.", data: updateAddon });
     } catch (error) {
       next(error);
     }
