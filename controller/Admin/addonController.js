@@ -1,5 +1,6 @@
 import { Addon } from "../../models/index.js";
 import { roles } from "../../utils/roles.js";
+import { handleNoData } from "../../utils/noData.js";
 
 const addonContoller = {
   async getAddons(req, res, next) {
@@ -23,8 +24,11 @@ const addonContoller = {
         console.log("addons list:: ", addons);
       }
 
-      if (addons.length == 0) {
-        res.status(200).json({ addons, message: "No addons found." });
+      //   if (addons.length == 0) {
+      //     res.status(200).json({ addons, message: "No addons found." });
+      //     return;
+      //   }
+      if (handleNoData(res, addons, "No Data Found.")) {
         return;
       }
       res.status(200).json(addons);
