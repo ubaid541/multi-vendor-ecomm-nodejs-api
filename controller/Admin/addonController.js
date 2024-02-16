@@ -78,9 +78,14 @@ const addonContoller = {
   },
   async deleteAddon(req, res, next) {
     const { id } = req.params;
+    if (!id) {
+      return res
+        .status(403)
+        .json({ message: "Addon id is required.", error: 403 });
+    }
     try {
       const deleteAddon = await Addon.deleteOne({ _id: req.params.id });
-      res.status(200).json("Addon Deleted.");
+      res.status(200).json({ message: "Addon Deleted." });
     } catch (error) {
       next(error);
     }
