@@ -24,10 +24,6 @@ const addonContoller = {
         console.log("addons list:: ", addons);
       }
 
-      //   if (addons.length == 0) {
-      //     res.status(200).json({ addons, message: "No addons found." });
-      //     return;
-      //   }
       if (handleNoData(res, addons, "No Data Found.")) {
         return;
       }
@@ -37,8 +33,13 @@ const addonContoller = {
     }
   },
   async getSingleAddon(req, res, next) {
+    console.log("id ", req.params.id);
     try {
       const single_addon = await Addon.findOne({ _id: req.params.id });
+
+      if (handleNoData(res, single_addon, "No data found for this id.")) {
+        return;
+      }
 
       res.status(200).json(single_addon);
     } catch (error) {
@@ -46,6 +47,12 @@ const addonContoller = {
     }
   },
   async addAddon(req, res, next) {
+    const { addon_name, addon_price } = req.body;
+    if (!addon_name || !addon_price) {
+      return res
+        .status(403)
+        .send({ message: "Addon name and price are required.", error: 403 });
+    }
     try {
       const exists = await Addon.exists({ addon_name: req.body.addon_name });
 
@@ -55,8 +62,6 @@ const addonContoller = {
     } catch (error) {
       next(error);
     }
-
-    const { addon_name, addon_price } = req.body;
 
     const newAddon = new Addon({
       ...req.body,
