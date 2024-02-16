@@ -36,6 +36,7 @@ const addonContoller = {
     console.log("id ", req.params.id);
     try {
       const single_addon = await Addon.findOne({ _id: req.params.id });
+      console.log("single addon ", single_addon);
 
       if (handleNoData(res, single_addon, "No data found for this id.")) {
         return;
@@ -76,6 +77,7 @@ const addonContoller = {
     }
   },
   async deleteAddon(req, res, next) {
+    const { id } = req.params;
     try {
       const deleteAddon = await Addon.deleteOne({ _id: req.params.id });
       res.status(200).json("Addon Deleted.");
