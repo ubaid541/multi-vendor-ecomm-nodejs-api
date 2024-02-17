@@ -104,7 +104,7 @@ const addonContoller = {
 
     if (!addon_name || !addon_id) {
       return res
-        .status(409)
+        .status(403)
         .send({ messge: "Addon name and addon id are required.", error: 403 });
     }
 
@@ -138,7 +138,6 @@ const addonContoller = {
           .json({ message: "Addon not found.", error: 404 });
       }
       res.status(200).json({ message: "Addon Updated.", data: updatedAddon });
-      res.status(200).json({ message: "Addon Updated.", data: updateAddon });
     } catch (error) {
       next(error);
     }

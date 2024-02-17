@@ -85,18 +85,21 @@ const attrController = {
   async deleteAttr(req, res, next) {
     try {
       const deleteAttr = await Attr.deleteOne({ _id: req.params.id });
-      res.status(200).json("Attribute Deleted.");
+      res.status(200).json({ message: "Attribute Deleted." });
     } catch (error) {
       next(error);
     }
   },
   async updateAttr(req, res, next) {
+    const { attr_name, attr_id } = req.body;
+    if (!attr_name) {
+      return res
+        .status(403)
+        .send({ messge: "Attribute name and id is required.", error: 403 });
+    }
     try {
       const exists = await Attr.exists({
-        $and: [
-          { attr_name: req.body.attr_name },
-          { _id: { $ne: req.query.attr_id } },
-        ],
+        $and: [{ attr_name: attr_name }, { _id: { $ne: attr_id } }],
       });
 
       if (exists) {
@@ -107,12 +110,22 @@ const attrController = {
     }
 
     try {
-      const updateAttr = await Attr.updateOne(
-        { _id: req.query.attr_id },
-        { $set: req.body }
-      );
+      // const updateAttr = await Attr.updateOne(
+      //   { _id: req.query.attr_id },
+      //   { $set: req.body }
+      // );
 
-      res.status(200).json("Attribute Updated.");
+      const updateAttr = await Attr.findByIdAndUpdate(attr_id, req.body, {
+        new: true,
+      });
+
+      if (!updateAttr) {
+        return res
+          .status(404)
+          .json({ message: "Attribute not found.", error: 404 });
+      }
+
+      res.status(200).json({ message: "Attribute Updated.", data: updateAttr });
     } catch (error) {
       next(error);
     }
