@@ -17,7 +17,7 @@ export const handleNoData = (res, data, message) => {
   return false;
 };
 
-export const isValidUserRole = (res, roles) => {
+export const isValidUserRole = (req, roles) => {
   if (!req.query.user_role || !roles[req.query.user_role]) {
     return false;
   }

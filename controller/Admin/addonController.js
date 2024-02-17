@@ -1,13 +1,19 @@
 import { Addon } from "../../models/index.js";
 import { roles } from "../../utils/checkFunctions.js";
 // import { handleNoData } from "../../utils/noData.js";
-import { handleNoData } from "../../utils/checkFunctions.js";
+import { handleNoData, isValidUserRole } from "../../utils/checkFunctions.js";
 
 const addonContoller = {
   async getAddons(req, res, next) {
     let addons;
     try {
-      if (!req.query.user_role || !roles[req.query.user_role]) {
+      // if (!req.query.user_role || !roles[req.query.user_role]) {
+      //   return res
+      //     .status(403)
+      //     .json({ message: "Invalid user role.", error: 403 });
+      // }
+
+      if (!isValidUserRole(req, roles)) {
         return res
           .status(403)
           .json({ message: "Invalid user role.", error: 403 });
@@ -28,7 +34,9 @@ const addonContoller = {
       if (handleNoData(res, addons, "No Data Found.")) {
         return;
       }
-      res.status(200).json(addons);
+      res
+        .status(200)
+        .json({ data: addons, message: "Addons retrieved successfully." });
     } catch (error) {
       next(error);
     }
