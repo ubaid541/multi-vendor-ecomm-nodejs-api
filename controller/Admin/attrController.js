@@ -1,10 +1,19 @@
 import { Attr } from "../../models/index.js";
-import { roles } from "../../utils/checkFunctions.js";
+import {
+  handleNoData,
+  isValidUserRole,
+  roles,
+} from "../../utils/checkFunctions.js";
 
 const attrController = {
   async getAttr(req, res, next) {
     let attribute;
     try {
+      if (!isValidUserRole(req, roles)) {
+        return res
+          .status(403)
+          .json({ message: "Invalid user role.", error: 403 });
+      }
       if (req.query.user_role === "admin") {
         attribute = await Attr.find(null, null, {
           sort: { createdAt: -1 },
@@ -14,7 +23,14 @@ const attrController = {
           sort: { createdAt: -1 },
         });
       }
-      res.status(200).json(attribute);
+
+      if (handleNoData(res, attribute, "No Data Found.")) {
+        return;
+      }
+      res.status(200).json({
+        data: attribute,
+        message: "Attributes retrieved successfully.",
+      });
     } catch (error) {
       next(error);
     }
@@ -23,12 +39,27 @@ const attrController = {
     try {
       const single_attr = await Attr.findOne({ _id: req.params.id });
 
+      if (handleNoData(res, single_attr, "No data found for this id.")) {
+        return;
+      }
+
       res.status(200).json(single_attr);
     } catch (error) {
       next(error);
     }
   },
   async addAttr(req, res, next) {
+    const { attr_name } = req.body;
+    if (!req.query.user_id) {
+      return res
+        .status(403)
+        .send({ message: "user_id is required.", error: 403 });
+    }
+    if (!attr_name) {
+      return res
+        .status(403)
+        .send({ message: "Attriute name is required.", error: 403 });
+    }
     try {
       const exists = await Attr.exists({ attr_name: req.body.attr_name });
 
